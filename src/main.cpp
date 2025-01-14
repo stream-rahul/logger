@@ -6,6 +6,7 @@
 #include <mutex>
 #include <iomanip>
 #include <ctime>
+#include <limits> // For INT_MAX and INT_MIN
 
 class Logger {
 public:
@@ -44,7 +45,13 @@ public:
         file_.open(filename, std::ios::app);
     }
 
-    
+    // Add function for arithmetic operations
+    template<typename T>
+    T add(T a, T b) {
+        T result = a + b;
+        log(Level::DEBUG, "add(", a, ", ", b, ") = ", result);
+        return result;
+    }
 
 private:
     Logger() = default;
@@ -89,9 +96,20 @@ int main() {
     logger.setLogFile("app.log");
 
     logger.log(Logger::Level::INFO, "Application started");
-    logger.log(Logger::Level::DEBUG, "Debug message: ", 42);
-    logger.log(Logger::Level::WARNING, "Warning: ", "Resource running low");
-    logger.log(Logger::Level::ERROR, "Error occurred: ", "Connection failed");
+
+    // Test the add function with integers
+    int intResult = logger.add(5, 10);
+    logger.log(Logger::Level::INFO, "Integer addition result: ", intResult);
+
+    // Test the add function with floating-point numbers
+    double doubleResult = logger.add(3.14, 2.71);
+    logger.log(Logger::Level::INFO, "Floating-point addition result: ", doubleResult);
+
+    // Test edge cases
+    int maxInt = std::numeric_limits<int>::max();
+    int minInt = std::numeric_limits<int>::min();
+    logger.add(maxInt, 1); // Overflow test
+    logger.add(minInt, -1); // Underflow test
 
     return 0;
 }
